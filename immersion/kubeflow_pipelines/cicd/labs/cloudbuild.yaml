@@ -35,6 +35,28 @@ steps:
   - |
     kfp --endpoint $_ENDPOINT pipeline upload -p ${_PIPELINE_NAME}_$TAG_NAME $_PIPELINE_PACKAGE
   dir: $_PIPELINE_FOLDER/pipeline
+  
+# Start the pipeline
+- name: 'gcr.io/$PROJECT_ID/kfp-cli'
+  args:
+  - '-c'
+  - |
+    kfp --endpoint $_ENDPOINT run submit \
+    -e Covertype_Classifier_Training_$TAG_NAME \
+    -r Run_$TAG_NAME \
+    -p ${_PIPELINE_NAME}_$TAG_NAME $_PIPELINE_PACKAGE \
+    project_id=$PROJECT_ID \
+    gcs_root=$_GCS_STAGING_PATH \
+    region=$_REGION \
+    source_table_name=$_SOURCE_TABLE \
+    dataset_id=$_DATASET_ID \
+    evaluation_metric_name=$_EVALUATION_METRIC \
+    evaluation_metric_threshold=$_EVALUATION_METRIC_THRESHOLD \
+    model_id=$_MODEL_ID \
+    version_id=$_VERSION_ID \
+    replace_existing_version=$_REPLACE_EXISTING_VERSION
+    
+  dir: $_PIPELINE_FOLDER/pipeline
 
 
 # Push the images to Container Registry
